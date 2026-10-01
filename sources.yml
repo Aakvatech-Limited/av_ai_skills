@@ -1,0 +1,20 @@
+# Outside skill repos that we copy into skills/.
+#
+# The sync workflow (.github/workflows/sync-upstream.yml) reads this file,
+# copies the listed skills, and opens a pull request when anything changes.
+#
+# Fields:
+#   name     Short ID for the source. Used in skills/.sources.lock.
+#   repo     GitHub repo, as owner/name.
+#   ref      Branch or tag to follow.
+#   path     Folder in that repo that holds the skill folders.
+#   include  "all", or a list of skill folder names to take.
+#   exclude  Skill folder names to skip. Optional.
+
+sources:
+  - name: frappe
+    repo: frappe/skills
+    ref: main
+    path: skills
+    include: all
+    exclude: []

@@ -1,0 +1,58 @@
+name: Sync upstream skills
+
+# Copies skills from the repos in sources.yml and opens a pull request
+# when anything changed. A person reviews and merges the pull request.
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
+  workflow_dispatch: # Lets you start it from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Scheduled runs only in the main repo, not in forks.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'Aakvatech-Limited/av_ai_skills'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync skills
+        run: bash scripts/sync.sh
+
+      - name: Summarize changes
+        id: summary
+        run: |
+          {
+            echo "body<<EOF"
+            echo "Automatic sync of outside skills listed in \`sources.yml\`."
+            echo
+            echo "### Source commits"
+            yq -r '.sources | to_entries | .[] | "- **" + .key + "**: [`" + .value.repo + "@" + (.value.commit | .[0:7]) + "`](https://github.com/" + .value.repo + "/commit/" + .value.commit + ")"' skills/.sources.lock
+            echo
+            echo "### Changed files"
+            echo '```'
+            git status --short -- skills
+            echo '```'
+            echo
+            echo "Read the changes before you merge. Skills are instructions that AI agents follow."
+            echo "EOF"
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: sync/upstream-skills
+          delete-branch: true
+          commit-message: "chore: sync upstream skills"
+          title: "chore: sync upstream skills"
+          body: ${{ steps.summary.outputs.body }}
+          labels: upstream-sync
+          add-paths: skills
