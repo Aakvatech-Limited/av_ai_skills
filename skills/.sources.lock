@@ -1,0 +1,17 @@
+# Written by scripts/sync.sh. Do not edit by hand.
+# Shows which commit of each outside repo the skills in this folder came from.
+sources:
+  frappe:
+    repo: frappe/skills
+    ref: main
+    commit: 0bef982e933705c30706efc1db3bc3bc5e7aca62
+    skills:
+      - code-style
+      - deep-app-audit
+      - draft-security-advisory
+      - fix-issue
+      - frappe-app-dev
+      - frappe-code-review
+      - resolve-backport-conflicts
+      - technical-writing
+      - ui-design
