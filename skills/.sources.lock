@@ -4,7 +4,7 @@ sources:
   frappe:
     repo: frappe/skills
     ref: main
-    commit: 0bef982e933705c30706efc1db3bc3bc5e7aca62
+    commit: ee6e61537a0131c5f2b33ab27cd0155744baeb22
     skills:
       - code-style
       - deep-app-audit
