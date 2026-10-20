@@ -9,7 +9,12 @@ set -uo pipefail
 repo="${1:-.}"
 cd "$repo" || { echo "Cannot enter $repo" >&2; exit 2; }
 
-mapfile -t hooks < <(find . -mindepth 2 -maxdepth 3 -type f -name hooks.py -not -path './.git/*' -print)
+# CI sees only committed files, so ignore untracked clones (for example frappe-semgrep-rules/) when in git
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+	mapfile -t hooks < <(git ls-files | grep -E '^[^/]+/hooks\.py$|^[^/]+/[^/]+/hooks\.py$' | sed 's|^|./|')
+else
+	mapfile -t hooks < <(find . -mindepth 2 -maxdepth 3 -type f -name hooks.py -not -path './.git/*' -print)
+fi
 if [ "${#hooks[@]}" -ne 1 ]; then
 	echo "Expected exactly one Frappe hooks.py, found ${#hooks[@]} (the CI job fails on this too)" >&2
 	exit 2
