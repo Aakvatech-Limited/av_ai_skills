@@ -192,6 +192,8 @@ Raw INSERTs into doctype tables skip `name`, `creation`, `owner` and hooks. Chec
 - **Operator precedence:** `&` binds tighter than `==` in Python, so put every comparison in parentheses.
 - **Field names that clash with pypika methods** (`name` is fine, but `count`, `as_`, `field`, `table`, `get_sql`): use `t["count"]`.
 - **Doctype names with spaces** are handled by `DocType("Sales Invoice")`. Never write `` `tab…` ``.
+- **`None` values change meaning between APIs.** Raw `col = %s` with `None` becomes `col = NULL`, which matches no rows. qb `t.col == None` keeps `= NULL`. But `frappe.db.delete` / `frappe.get_all` / `set_value` filters turn `{"col": None}` into `col IS NULL`, which matches rows. Use qb when a filter value can be `None`, or the rewrite can delete or update more rows than before. (Found in vsd_fleet_ms `delete_gl_entries`.)
+- **Correlated sub-queries are safe.** qb qualifies the outer column inside the sub-query (`` `tabTrips`.`assigned_driver`=`tabTruck Driver`.`name` ``), so you do not need aliases.
 - **`frappe.get_all` and `ignore_permissions`:** `get_all` ignores permissions and `get_list` applies them. Raw SQL never applied them, so `get_all` (or qb) keeps the old behaviour.
 - **Postgres:** qb produces portable SQL. Vendor-only syntax (`ON DUPLICATE KEY`, `FORCE INDEX`, `GROUP_CONCAT … SEPARATOR`) needs `GroupConcat` or a different approach. Flag these to the user.
 - **`sql_ddl`** (ALTER/DROP in patches) has no qb equivalent. Use `frappe.db.add_index`, `frappe.db.add_unique`, `frappe.db.change_column_type`, or `frappe.delete_doc("DocType", …)` where they fit. Otherwise keep it and tell the user (it does not fail the CI pattern).
