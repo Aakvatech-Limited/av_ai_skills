@@ -4,7 +4,7 @@ sources:
   frappe:
     repo: frappe/skills
     ref: main
-    commit: ee6e61537a0131c5f2b33ab27cd0155744baeb22
+    commit: 5dc2f984081f6d8e23559af03b0e7c2799245d79
     skills:
       - code-style
       - deep-app-audit
@@ -13,5 +13,6 @@ sources:
       - frappe-app-dev
       - frappe-code-review
       - resolve-backport-conflicts
+      - ship-it
       - technical-writing
       - ui-design
